@@ -6,7 +6,7 @@ DONE: https://copr.fedorainfracloud.org/coprs/ceph/el9
 Step 2: Create a mock configuration that uses this Copr repo
 ============================================================
 
-Place `el9-ceph-x86_64.cfg`_ into ``/etc/mock``. This relies on the `CentOS
+Place `<el9-ceph-x86_64.cfg>`_ into ``/etc/mock``. This relies on the `CentOS
 Stream 9 config files
 <https://github.com/rpm-software-management/mock/pull/751>`_ from
 ``mock-core-configs-34.5-1.fc34``
