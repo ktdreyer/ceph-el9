@@ -25,7 +25,9 @@ This is done in `Trello <https://trello.com/b/wkDpptM1/ceph-el9>`_ now.
 Step 4: build what we need in Copr
 ==================================
 
-For the builds in RHEL 9: we need to download those from CentOS 9's Koji and rebuild them in our el9 Copr. In parallel we need to petition to add those to CentOS 9's CRB repo.
+For the builds in RHEL 9: we need to download those from `CentOS 9's Koji
+<https://kojihub.stream.centos.org/>`_ and rebuild them in our el9 Copr. In
+parallel we need to petition to add those to CentOS 9's CRB repo.
 
 For the builds not in RHEL 9, we need to clone those from Fedora and build them in the el9 Copr.
 
