@@ -51,6 +51,5 @@ Build the SRPM in Copr::
 
     copr-cli build ceph/el9 nasm-2.15.03-5.fc35.src.rpm
 
-
 When the build completes, you'll see it listed in the `Copr web UI
 <https://copr.fedorainfracloud.org/coprs/ceph/el9/builds/>`_.
