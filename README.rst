@@ -61,3 +61,13 @@ Build the SRPM in Copr::
 
 When the build completes, you'll see it listed in the `Copr web UI
 <https://copr.fedorainfracloud.org/coprs/ceph/el9/builds/>`_.
+
+Using this Copr repo
+====================
+
+On RHEL 9 nightlies, ``dnf copr enable ceph/el9`` does not work::
+
+    Do you really want to enable copr.fedorainfracloud.org/ceph/el9? [y/N]: y
+    Error: This repository does not have any builds yet so you cannot enable it now.
+
+We should report this to the Copr team (TBD).
