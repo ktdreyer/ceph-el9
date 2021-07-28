@@ -1,15 +1,18 @@
-**Step 1**: Create a new Copr repo
+Step 1: Create a new Copr repo
+==============================
 
 DONE: https://copr.fedorainfracloud.org/coprs/ceph/el9
 
-**Step 2**: Create a mock configuration that uses this Copr repo
+Step 2: Create a mock configuration that uses this Copr repo
+============================================================
 
 Place `el9-ceph-x86_64.cfg`_ into ``/etc/mock``. This relies on the `CentOS
 Stream 9 config files
 <https://github.com/rpm-software-management/mock/pull/751>`_ from
 ``mock-core-configs-34.5-1.fc34``
 
-**Step 3**: Identify which builds already exist in RHEL 9
+Step 3: Identify which builds already exist in RHEL 9
+=====================================================
 
 *"Wait, some of these builds already exist in RHEL 9? Why doesn't install-deps.sh find them?"*
 
@@ -19,13 +22,15 @@ The thing that does this filtering is Pungi's "comps", `a large XML file <https:
 
 This is done in `Trello <https://trello.com/b/wkDpptM1/ceph-el9>`_ now.
 
-**Step 4**: build what we need
+Step 4: build what we need in Copr
+==================================
 
 For the builds in RHEL 9: we need to download those from CentOS 9's Koji and rebuild them in our el9 Copr. In parallel we need to petition to add those to CentOS 9's CRB repo.
 
 For the builds not in RHEL 9, we need to clone those from Fedora and build them in the el9 Copr.
 
 Walkthrough: Building for el9 from Fedora sources
+-------------------------------------------------
 
 Clone the fedora sources to your computer::
 
