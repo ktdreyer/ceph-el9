@@ -1,3 +1,9 @@
+Building Ceph's dependencies for EPEL 9
+=======================================
+
+Our strategy is to fork packages from Fedora Rawhide into EPEL 9, like `we did
+<https://github.com/ktdreyer/ceph-el8>`_ a few years ago for EPEL 8.
+
 Step 1: Create a new Copr repo
 ==============================
 
