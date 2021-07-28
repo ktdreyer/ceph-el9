@@ -40,7 +40,9 @@ For the builds not in RHEL 9, we need to clone those from Fedora and build them 
 Walkthrough: Building for el9 from Fedora sources
 -------------------------------------------------
 
-Clone the fedora sources to your computer::
+Ensure your SSH public key is set up in `Fedora's Account System
+<https://accounts.fedoraproject.org/>`_. Install ``fedpkg``, then clone a
+package (eg. nasm) like so::
 
     fedpkg clone nasm
     cd nasm
