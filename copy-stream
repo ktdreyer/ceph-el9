@@ -147,7 +147,7 @@ def main():
                 # if we re-ran this script quickly.)
             if koji_pkg < copr_pkg:
                 print(Fore.RED + f'Koji {koji_pkg} is older than Copr {copr_pkg}!')
-                print(Fore.RED + "delete {copr_pkg} from Copr and rebuild Koji's version")
+                print(Fore.RED + f"delete {copr_pkg} from Copr and rebuild Koji's version")
             if koji_pkg == copr_pkg:
                 print(Fore.GREEN + f'Koji {koji_pkg} is the same as Copr {copr_pkg}')
         else:
