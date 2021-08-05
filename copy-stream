@@ -1,0 +1,160 @@
+#!/usr/bin/python3
+
+"""
+Copy certain packages from CentOS Stream 9 into our Copr.
+"""
+
+import re
+from copr.v3 import Client
+import koji
+import rpm
+import yaml
+from colorama import init, Fore
+
+
+KOJI_TAG = 'c9s-pending'
+
+init(autoreset=True)
+
+
+class Package(object):
+    """ Class for comparing RPM versions """
+    def __init__(self, name, version, release, epoch=None):
+        self.name = name
+        self.version = version
+        self.release = release
+        self.epoch = epoch
+
+    def __cmp__(self, other):
+        if self.name != other.name:
+            return (self.name > other.name) - (self.name < other.name)
+        return rpm.labelCompare((self.epoch, self.version, self.release),
+                                (other.epoch, other.version, other.release))
+
+    def __str__(self):
+        return f'{self.name}-{self.version}-{self.release}'
+
+    def __gt__(self, other):
+        return self.__cmp__(other) == 1
+
+    def __ge__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
+
+    def __lt__(self, other):
+        return self.__cmp__(other) == -1
+
+    def __le__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
+
+
+def get_session(profile):
+    """
+    Return an anonymous koji session for this profile name.
+
+    :param str profile: profile name, eg. "stream"
+    :returns: anonymous koji.ClientSession
+    """
+    # Note, get_profile_module() raises koji.ConfigurationError if we
+    # could not find this profile's name in /etc/koji.conf.d/*.conf and
+    # ~/.koji/config.d/*.conf.
+    mykoji = koji.get_profile_module(profile)
+    opts = vars(mykoji.config)
+    opts['noauth'] = True
+    session = mykoji.ClientSession(mykoji.config.server, opts)
+    return session
+
+
+def list_stream_packages():
+    with open('stream-packages.yml', 'r') as stream:
+        settings = yaml.safe_load(stream)
+    return settings['packages']
+
+
+def get_koji_packages(session, tag, names):
+    """
+    Return a list of src rpminfo dicts
+
+    Use this method to determine what versions exist in Koji.
+    """
+    packages = {}
+    # Possible improvements: instead of taking source package names, we could
+    # search for the exact -devel packages we need instead.
+    for name in names:
+        rpms, _ = session.listTaggedRPMS(tag,
+                                         arch='src',
+                                         package=name,
+                                         latest=True)
+        if not rpms:
+            raise SystemExit(f'Could not find {name} in {tag}')
+        rpm = rpms[0]
+        package = Package(name, rpm['version'], rpm['release'])
+        packages[name] = package
+    return packages
+
+
+def get_copr_packages(client):
+    """
+    Return a dict of Copr source package names->versions
+
+    Use this method to determine what versions exist in Copr.
+
+    See https://python-copr.readthedocs.io/en/latest/ClientV3.html
+    for API documentation
+    """
+    # XXX: this does not hand pagination at all.
+    packages_data = client.package_proxy.get_list('ceph', 'el9',
+                                                  with_latest_succeeded_build=True)
+    packages = {}
+    for package_data in packages_data:
+        if not package_data.builds['latest_succeeded']:
+            print(f'{package_data.name} lacks a successful build. delete it.')
+            continue
+        src_pkg = package_data.builds['latest_succeeded']['source_package']
+        name = src_pkg['name']
+        version, release = src_pkg['version'].rsplit('-')
+        # hack: edit these release values slightly.
+        release = re.sub(r'\.el8$', '.el9', release)
+        release = re.sub(r'\.fc\d+$', '.el9', release)
+        package = Package(name, version, release)
+        packages[name] = package
+    return packages
+
+
+def main():
+    client = Client.create_from_config_file()
+    session = get_session('stream')
+
+    stream_packages = list_stream_packages()
+
+    print('Searching Koji for %d c9s packages' % len(stream_packages))
+
+    koji_packages = get_koji_packages(session, KOJI_TAG, stream_packages)
+
+    print('Found %d Koji packages' % len(koji_packages))
+
+    copr_packages = get_copr_packages(client)
+
+    print('Found %d Copr packages' % len(copr_packages))
+
+    for pkg_name, koji_pkg in koji_packages.items():
+        print(f"Checking CentOS 9 Stream {pkg_name}")
+        copr_pkg = copr_packages.get(pkg_name)
+        if copr_pkg:
+            if koji_pkg > copr_pkg:
+                print(Fore.YELLOW + f'Koji {koji_pkg} is newer than Copr {copr_pkg}')
+                print(Fore.YELLOW + f"Submit Koji's {koji_pkg} to Copr to reconcile")
+                # (Note, this would not consider builds that are in progress, like
+                # if we re-ran this script quickly.)
+            if koji_pkg < copr_pkg:
+                print(Fore.RED + f'Koji {koji_pkg} is older than Copr {copr_pkg}!')
+                print(Fore.RED + "delete {copr_pkg} from Copr and rebuild Koji's version")
+            if koji_pkg == copr_pkg:
+                print(Fore.GREEN + f'Koji {koji_pkg} is the same as Copr {copr_pkg}')
+        else:
+            print(Fore.YELLOW + f'{name} not yet built in Copr.')
+            print('Either we need to build this in Copr, or the YAML is wrong'
+                  'and we actually have all the sub-packages we need now.')
+
+
+if __name__ == '__main__':
+    main()
