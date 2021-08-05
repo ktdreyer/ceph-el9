@@ -112,6 +112,8 @@ def get_copr_packages(client):
         src_pkg = package_data.builds['latest_succeeded']['source_package']
         name = src_pkg['name']
         version, release = src_pkg['version'].rsplit('-')
+        if ':' in version:
+            _, version = version.split(':', 1)
         # hack: edit these release values slightly.
         release = re.sub(r'\.el8$', '.el9', release)
         release = re.sub(r'\.fc\d+$', '.el9', release)
