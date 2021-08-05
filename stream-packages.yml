@@ -13,6 +13,9 @@ packages:
   - oath-toolkit
   - lua
 
+  # redhat-lsb-core requires ncurses-libs:
+  - ncurses-libs
+
   # In order to build the above packages, we also require the following
   # build-time dependencies:
   #   Note, argon2 is not tagged anywhere. How are they building cryptsetup??
