@@ -1,16 +1,18 @@
 #!/usr/bin/python3
 
 """
-Copy certain packages from CentOS Stream 9 into our Copr.
+Compare the packages in our Copr to those in CentOS Stream 9.
 """
 
 import re
 from copr.v3 import Client
+import productmd.compose
 import koji
 import rpm
-import yaml
 from colorama import init, Fore
 
+
+COMPOSE_URL = 'https://composes.stream.centos.org/production/latest-CentOS-Stream'
 KOJI_PROFILE = 'stream'
 KOJI_TAG = 'c9s-pending'
 
@@ -33,6 +35,12 @@ class Package(object):
 
     def __str__(self):
         return f'{self.name}-{self.version}-{self.release}'
+
+    def __repr__(self):
+        return f'Package("{self.name}", "{self.version}", "{self.release}")'
+
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
 
     def __gt__(self, other):
         return self.__cmp__(other) == 1
@@ -64,32 +72,25 @@ def get_session(profile):
     return session
 
 
-def list_stream_packages():
-    with open('stream-packages.yml', 'r') as stream:
-        settings = yaml.safe_load(stream)
-    return settings['packages']
-
-
-def get_koji_packages(session, tag, names):
+def get_compose_packages(compose_url):
     """
-    Return a list of src rpminfo dicts
+    Return a dict of names->Packages
 
-    Use this method to determine what versions exist in Koji.
+    Use this method to determine what versions exist in a compose.
     """
-    packages = {}
-    # Possible improvements: instead of taking source package names, we could
-    # search for the exact -devel packages we need instead.
-    for name in names:
-        rpms, _ = session.listTaggedRPMS(tag,
-                                         arch='src',
-                                         package=name,
-                                         latest=True)
-        if not rpms:
-            raise SystemExit(f'Could not find {name} in {tag}')
-        rpm = rpms[0]
-        package = Package(name, rpm['version'], rpm['release'])
-        packages[name] = package
-    return packages
+    compose = productmd.compose.Compose(compose_url)
+
+    pkgs = {}
+
+    for variant in compose.rpms.rpms:
+        for arch in compose.rpms.rpms[variant]:
+            for srpm in compose.rpms.rpms[variant][arch]:
+                # example srpm string: "ceph-2:12.2.5-25.el7cp.src"
+                data = productmd.common.parse_nvra(srpm)
+                name = data['name']
+                pkg = Package(name, data['version'], data['release'])
+                pkgs[name] = pkg
+    return pkgs
 
 
 def get_copr_packages(client):
@@ -124,38 +125,29 @@ def get_copr_packages(client):
 
 def main():
     client = Client.create_from_config_file()
-    session = get_session(KOJI_PROFILE)
-
-    stream_packages = list_stream_packages()
-
-    print('Searching Koji for %d c9s packages' % len(stream_packages))
-
-    koji_packages = get_koji_packages(session, KOJI_TAG, stream_packages)
-
-    print('Found %d Koji packages' % len(koji_packages))
 
     copr_packages = get_copr_packages(client)
-
     print('Found %d Copr packages' % len(copr_packages))
 
-    for pkg_name, koji_pkg in koji_packages.items():
-        print(f"Checking CentOS 9 Stream {pkg_name}")
-        copr_pkg = copr_packages.get(pkg_name)
-        if copr_pkg:
-            if koji_pkg > copr_pkg:
-                print(Fore.YELLOW + f'Koji {koji_pkg} is newer than Copr {copr_pkg}')
-                print(Fore.YELLOW + f"Submit Koji's {koji_pkg} to Copr to reconcile")
+    print(f'Loading compose at {COMPOSE_URL}...')
+    compose_packages = get_compose_packages(COMPOSE_URL)
+
+    for name in sorted(copr_packages):
+        copr_pkg = copr_packages[name]
+        compose_pkg = compose_packages.get(name)
+        if compose_pkg:
+            if compose_pkg > copr_pkg:
+                print(Fore.YELLOW + f'Compose has {compose_pkg}, newer than Copr {copr_pkg}')
+                print(Fore.YELLOW + f"Submit Koji's {compose_pkg} to Copr to reconcile")
                 # (Note, this would not consider builds that are in progress, like
                 # if we re-ran this script quickly.)
-            if koji_pkg < copr_pkg:
-                print(Fore.RED + f'Koji {koji_pkg} is older than Copr {copr_pkg}!')
+            if compose_pkg < copr_pkg:
+                print(Fore.YELLOW + f'Compose has {compose_pkg}, older than Copr {copr_pkg}')
                 print(Fore.RED + f"delete {copr_pkg} from Copr and rebuild Koji's version")
-            if koji_pkg == copr_pkg:
-                print(Fore.GREEN + f'Koji {koji_pkg} is the same as Copr {copr_pkg}')
+            if compose_pkg == copr_pkg:
+                print(Fore.GREEN + f'Compose {compose_pkg} is the same as Copr {copr_pkg}')
         else:
-            print(Fore.YELLOW + f'{pkg_name} not yet built in Copr.')
-            print('Either we need to build this in Copr, or the YAML is wrong'
-                  'and we actually have all the sub-packages we need now.')
+            print(f'Copr {name} package not present in compose')
 
 
 if __name__ == '__main__':
