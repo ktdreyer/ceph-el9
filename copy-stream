@@ -11,7 +11,7 @@ import rpm
 import yaml
 from colorama import init, Fore
 
-
+KOJI_PROFILE = 'stream'
 KOJI_TAG = 'c9s-pending'
 
 init(autoreset=True)
@@ -124,7 +124,7 @@ def get_copr_packages(client):
 
 def main():
     client = Client.create_from_config_file()
-    session = get_session('stream')
+    session = get_session(KOJI_PROFILE)
 
     stream_packages = list_stream_packages()
 
