@@ -153,7 +153,7 @@ def main():
             if koji_pkg == copr_pkg:
                 print(Fore.GREEN + f'Koji {koji_pkg} is the same as Copr {copr_pkg}')
         else:
-            print(Fore.YELLOW + f'{name} not yet built in Copr.')
+            print(Fore.YELLOW + f'{pkg_name} not yet built in Copr.')
             print('Either we need to build this in Copr, or the YAML is wrong'
                   'and we actually have all the sub-packages we need now.')
 
