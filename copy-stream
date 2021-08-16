@@ -94,7 +94,7 @@ def get_koji_packages(session, tag, names):
 
 def get_copr_packages(client):
     """
-    Return a dict of Copr source package names->versions
+    Return a dict of Copr source package names->Packages
 
     Use this method to determine what versions exist in Copr.
 
