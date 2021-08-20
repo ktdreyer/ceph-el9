@@ -83,7 +83,9 @@ support RHEL 9 for that release.
 
 Required for building:
 
-* https://tracker.ceph.com/issues/52353 - ``cmake: handle empty CMAKE_THREAD_LIBS_INIT``
+* https://tracker.ceph.com/issues/52353 - ``cmake: handle empty
+  CMAKE_THREAD_LIBS_INIT`` (or workaround this by setting ``%bcond_with
+  rbd_ssd_cache`` and ``%bcond_with rbd_rwl_cache``)
 
 Important for testing upstream, not *strictly* required:
 
