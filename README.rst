@@ -55,6 +55,11 @@ Test a local mock build::
 
     mock -r el9-ceph-x86_64 nasm-2.15.03-5.fc35.src.rpm
 
+(In my mock builds on an CentOS 8 Stream host in DreamCompute, ``mock`` hits a
+bug where it cannot resolve any Yum repo host in DNS. ``mock
+--isolation=simple`` works around this. TODO: reproduce without the Copr
+config and report to mock team.)
+
 Build the SRPM in Copr::
 
     copr-cli build ceph/el9 nasm-2.15.03-5.fc35.src.rpm
