@@ -83,6 +83,8 @@ support RHEL 9 for that release.
 
 Required for building:
 
+* https://github.com/ceph/ceph/pull/42822 - ``ceph.spec.in: drop gdbm from build deps``
+
 * https://tracker.ceph.com/issues/52353 - ``cmake: handle empty
   CMAKE_THREAD_LIBS_INIT`` (or workaround this by setting ``%bcond_with
   rbd_ssd_cache`` and ``%bcond_with rbd_rwl_cache``)
