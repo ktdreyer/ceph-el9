@@ -68,3 +68,19 @@ Using this Copr repo
 On your RHEL 9 or CentOS 9 system::
 
     dnf copr enable ceph/el9 centos-stream-9
+
+Backporting Ceph changes to pacific branch
+==========================================
+
+The following el9-related changes are in progress or merged to ``master`` in
+Ceph upstream. We should backport these to the ``pacific`` branch in order to
+support RHEL 9 for that release.
+
+Required for building:
+
+* https://tracker.ceph.com/issues/52353 - ``cmake: handle empty CMAKE_THREAD_LIBS_INIT``
+
+Important for testing upstream, not *strictly* required:
+
+* https://tracker.ceph.com/issues/52243 - ``remove remaining references to lsb_release``
+* https://github.com/ceph/ceph/pull/42575 - ``*: s/virtualenv/python -m venv/``
