@@ -97,7 +97,7 @@ def koji_srpm_url(session, package):
         'version': package.version,
         'release': package.release,
     }
-    # "build" shoudl be a dict here...
+    # "build" should be a dict here...
     builddir = pathinfo.build(buildinfo)
     rpmpath = pathinfo.rpm(rpminfo)
     url = posixpath.join(builddir, rpmpath)
