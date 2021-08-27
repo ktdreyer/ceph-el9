@@ -89,6 +89,9 @@ Required for building:
   CMAKE_THREAD_LIBS_INIT`` (or workaround this by setting ``%bcond_with
   rbd_ssd_cache`` and ``%bcond_with rbd_rwl_cache``)
 
+* https://github.com/ceph/ceph/pull/42898 - ``pacific: cmake: exclude
+  "grafonnet-lib" target from "all"``
+
 Important for testing upstream, not *strictly* required:
 
 * https://tracker.ceph.com/issues/52243 - ``remove remaining references to lsb_release``
