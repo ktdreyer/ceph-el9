@@ -92,6 +92,9 @@ Required for building:
 * https://github.com/ceph/ceph/pull/42898 - ``pacific: cmake: exclude
   "grafonnet-lib" target from "all"``
 
+* On mem-constrainted environments (16GB), bump ``smp_limit_mem_per_job`` to
+  ``3200000``
+
 Important for testing upstream, not *strictly* required:
 
 * https://tracker.ceph.com/issues/52243 - ``remove remaining references to lsb_release``
