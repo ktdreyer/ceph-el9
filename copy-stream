@@ -180,8 +180,6 @@ def main():
                 print(Fore.RED + f"delete {copr_pkg} from Copr and rebuild Koji's version")
             if compose_pkg == copr_pkg:
                 print(Fore.GREEN + f'Compose {compose_pkg} is the same as Copr {copr_pkg}')
-        else:
-            print(f'Copr {name} package not present in compose')
 
 
 if __name__ == '__main__':
