@@ -97,5 +97,5 @@ Required for building:
 
 Important for testing upstream, not *strictly* required:
 
-* https://tracker.ceph.com/issues/52243 - ``remove remaining references to lsb_release``
+* https://tracker.ceph.com/issues/52449 - ``remove remaining references to lsb_release``
 * https://github.com/ceph/ceph/pull/42575 - ``*: s/virtualenv/python -m venv/``
