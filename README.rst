@@ -83,7 +83,7 @@ support RHEL 9 for that release.
 
 Required for building:
 
-* https://github.com/ceph/ceph/pull/42822 - ``ceph.spec.in: drop gdbm from build deps``
+* https://tracker.ceph.com/issues/52471 - ``ceph.spec.in: drop gdbm from build deps``
 
 * https://tracker.ceph.com/issues/52353 - ``cmake: link Threads::Threads
   instead of CMAKE_THREAD_LIBS_INIT`` (or workaround this by setting
@@ -95,4 +95,4 @@ Required for building:
 Important for testing upstream, not *strictly* required:
 
 * https://tracker.ceph.com/issues/52449 - ``remove remaining references to lsb_release``
-* https://github.com/ceph/ceph/pull/42575 - ``*: s/virtualenv/python -m venv/``
+* https://tracker.ceph.com/issues/52472 - ``*: s/virtualenv/python -m venv/``
