@@ -89,9 +89,6 @@ Required for building:
   CMAKE_THREAD_LIBS_INIT`` (or workaround this by setting ``%bcond_with
   rbd_ssd_cache`` and ``%bcond_with rbd_rwl_cache``)
 
-* https://github.com/ceph/ceph/pull/42898 - ``pacific: cmake: exclude
-  "grafonnet-lib" target from "all"``
-
 * On mem-constrainted environments (16GB), bump ``smp_limit_mem_per_job`` to
   ``3200000``
 
