@@ -85,9 +85,9 @@ Required for building:
 
 * https://github.com/ceph/ceph/pull/42822 - ``ceph.spec.in: drop gdbm from build deps``
 
-* https://tracker.ceph.com/issues/52353 - ``cmake: handle empty
-  CMAKE_THREAD_LIBS_INIT`` (or workaround this by setting ``%bcond_with
-  rbd_ssd_cache`` and ``%bcond_with rbd_rwl_cache``)
+* https://tracker.ceph.com/issues/52353 - ``cmake: link Threads::Threads
+  instead of CMAKE_THREAD_LIBS_INIT`` (or workaround this by setting
+  ``%bcond_with rbd_ssd_cache`` and ``%bcond_with rbd_rwl_cache``)
 
 * On mem-constrainted environments (16GB), bump ``smp_limit_mem_per_job`` to
   ``3200000``
