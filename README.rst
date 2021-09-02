@@ -89,7 +89,7 @@ Required for building:
   instead of CMAKE_THREAD_LIBS_INIT`` (or workaround this by setting
   ``%bcond_with rbd_ssd_cache`` and ``%bcond_with rbd_rwl_cache``)
 
-* On mem-constrainted environments (16GB), bump ``smp_limit_mem_per_job`` to
+* On mem-constrainted builders (16GB), bump ``smp_limit_mem_per_job`` to
   ``3200000``
 
 Important for testing upstream, not *strictly* required:
