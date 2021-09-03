@@ -74,6 +74,11 @@ On your RHEL 9 or CentOS 9 system::
 
     dnf copr enable ceph/el9 centos-stream-9
 
+As developers change builds in this Copr rapidly, you can refresh your local
+el9 system's cache::
+
+    yum --disablerepo='*' --enablerepo=copr:copr.fedorainfracloud.org:ceph:el9 makecache
+
 Backporting Ceph changes to pacific branch
 ==========================================
 
