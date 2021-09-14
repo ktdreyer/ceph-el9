@@ -90,7 +90,7 @@ Required for building:
 
 * https://tracker.ceph.com/issues/52471 - ``ceph.spec.in: drop gdbm from build deps``
 
-* https://tracker.ceph.com/issues/52353 - ``cmake: link Threads::Threads
+* https://tracker.ceph.com/issues/52610 - ``cmake: link Threads::Threads
   instead of CMAKE_THREAD_LIBS_INIT`` (or workaround this by setting
   ``%bcond_with rbd_ssd_cache`` and ``%bcond_with rbd_rwl_cache``)
 
