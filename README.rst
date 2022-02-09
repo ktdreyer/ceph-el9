@@ -24,7 +24,7 @@ Step 3: Identify which builds already exist in RHEL 9
 
 The *build* exists, but the RHEL developers filter out certain sub-packages from the RHEL 9 product. For example, lua exists in RHEL 9, but lua-devel does not. The reason for this is that the RHEL developers only want to provide users with supported packages, and they don't want to provide packages that lead customers into unsupported configurations.
 
-The thing that does this filtering is Pungi's "comps", `a large XML file <https://gitlab.com/redhat/centos-stream/release-engineering/comps/-/blob/main/comps-centos-stream-9.xml.in>`_ that lists all the leaf sub-packages that we want to put into RHEL 9.
+The thing that does this filtering is Pungi's configuration, `a large "comps" XML file <https://gitlab.com/redhat/centos-stream/release-engineering/comps/-/blob/main/comps-centos-stream-9.xml.in>`_, plus an `"additional_packages" config file <https://gitlab.com/redhat/centos-stream/release-engineering/pungi-centos/-/blob/centos-9-stream/shared/additional_and_filter_packages.conf>`_. These list all the leaf sub-packages that we want to put into RHEL 9.
 
 This is done in `Trello <https://trello.com/b/wkDpptM1/ceph-el9>`_ now.
 
