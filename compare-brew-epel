@@ -1,0 +1,123 @@
+#!/usr/bin/python3
+
+"""
+Compare the packages in EPEL to those in Brew.
+"""
+
+import logging
+from prettytable import PrettyTable
+import koji
+import rpm
+
+logging.basicConfig(format='%(levelname)s: %(message)s')
+log = logging.getLogger()
+log.setLevel(logging.INFO)
+
+
+BREW_TAGS = ('ceph-7.1-rhel-9-candidate', 'ceph-7.1-rhel-9-buildrequires')
+
+
+class Build(object):
+    """ Class for comparing RPM versions """
+    def __init__(self, name, version, release, epoch=None):
+        self.name = name
+        self.version = version
+        self.release = release
+        self.epoch = epoch
+
+    @property
+    def verrel(self):
+        return f'{self.version}-{self.release}'
+
+    def __cmp__(self, other):
+        if self.name != other.name:
+            return (self.name > other.name) - (self.name < other.name)
+        return rpm.labelCompare((self.epoch, self.version, self.release),
+                                (other.epoch, other.version, other.release))
+
+    def __str__(self):
+        return f'{self.name}-{self.version}-{self.release}'
+
+    def __repr__(self):
+        return f'Build("{self.name}", "{self.version}", "{self.release}")'
+
+    def __eq__(self, other):
+        return self.__cmp__(other) == 0
+
+    def __gt__(self, other):
+        return self.__cmp__(other) == 1
+
+    def __ge__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
+
+    def __lt__(self, other):
+        return self.__cmp__(other) == -1
+
+    def __le__(self, other):
+        return self.__gt__(other) or self.__eq__(other)
+
+
+def get_session(profile):
+    """
+    Return an anonymous koji session for this profile name.
+
+    :param str profile: profile name, eg. "stream"
+    :returns: anonymous koji.ClientSession
+    """
+    # Note, get_profile_module() raises koji.ConfigurationError if we
+    # could not find this profile's name in /etc/koji.conf.d/*.conf and
+    # ~/.koji/config.d/*.conf.
+    mykoji = koji.get_profile_module(profile)
+    opts = vars(mykoji.config)
+    opts['noauth'] = True
+    session = mykoji.ClientSession(mykoji.config.server, opts)
+    return session
+
+
+def main():
+    brew = get_session('brew')
+    fedora = get_session('fedora')
+
+    brew_builds = {}
+    for tag in BREW_TAGS:
+        data = brew.listTagged(tag, inherit=True, latest=True, type='rpm')
+        for entry in data:
+            build = Build(entry['name'], entry['version'], entry['release'])
+            existing = brew_builds.get(build.name)
+            if existing and existing != build:
+                raise RuntimeError('different builds in tag')
+            brew_builds[build.name] = build
+
+    # Fetch corresponding builds from EPEL
+    ordered_names = sorted(brew_builds)
+    results = []
+    with fedora.multicall() as m:
+        for name in ordered_names:
+            result = m.getLatestBuilds('epel9', package=name)
+            results.append(result)
+    builds_list = []
+    for x in results:
+        if x.result:
+            entry = x.result[0]
+            builds_list.append(Build(entry['name'], entry['version'], entry['release']))
+        else:
+            builds_list.append(None)
+    epel_builds = dict(zip(ordered_names, builds_list))
+
+    table = PrettyTable()
+    table.field_names = ['Pkg', 'Brew', 'EPEL']
+    table.align = 'l'
+
+    for name in sorted(brew_builds):
+        brew_verrel = brew_builds[name].verrel
+        epel_build = epel_builds.get(name)
+        if not epel_build:
+            continue
+        epel_verrel = epel_build.verrel
+        # TODO: colors for "newer" builds
+        table.add_row([name, brew_verrel, epel_verrel])
+    print(table)
+
+
+if __name__ == '__main__':
+    main()
