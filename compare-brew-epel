@@ -66,7 +66,7 @@ class Build(object):
         return self.__cmp__(other) == -1
 
     def __le__(self, other):
-        return self.__gt__(other) or self.__eq__(other)
+        return self.__lt__(other) or self.__eq__(other)
 
 
 def get_session(profile):
