@@ -29,11 +29,23 @@ class Build(object):
     def verrel(self):
         return f'{self.version}-{self.release}'
 
+    @property
+    def simple_release(self):
+        # Hacks for Ceph:
+        release = self.release
+        if release.endswith('cp'):
+            release = release[:-2]
+        elif release.endswith('el9cp.1'):
+            release = release[:-4] + '.1'
+        elif release.endswith('ost'):
+            release = release[:-3]
+        return release
+
     def __cmp__(self, other):
         if self.name != other.name:
             return (self.name > other.name) - (self.name < other.name)
-        return rpm.labelCompare((self.epoch, self.version, self.release),
-                                (other.epoch, other.version, other.release))
+        return rpm.labelCompare((self.epoch, self.version, self.simple_release),
+                                (other.epoch, other.version, other.simple_release))
 
     def __str__(self):
         return f'{self.name}-{self.version}-{self.release}'
