@@ -5,6 +5,7 @@ Compare the packages in EPEL to those in Brew.
 """
 
 import logging
+import colorama
 from prettytable import PrettyTable
 import koji
 import rpm
@@ -121,12 +122,14 @@ def main():
     table.align = 'l'
 
     for name in sorted(brew_builds):
-        brew_verrel = brew_builds[name].verrel
+        brew_build = brew_builds[name]
+        brew_verrel = brew_build.verrel
         epel_build = epel_builds.get(name)
         if not epel_build:
             continue
         epel_verrel = epel_build.verrel
-        # TODO: colors for "newer" builds
+        if epel_build > brew_build:
+            name = colorama.Fore.RED + name + colorama.Style.RESET_ALL
         table.add_row([name, brew_verrel, epel_verrel])
     print(table)
 
