@@ -91,6 +91,7 @@ def main():
     fedora = get_session('fedora')
 
     brew_builds = {}
+    tags = {}
     for tag in BREW_TAGS:
         data = brew.listTagged(tag, inherit=True, latest=True, type='rpm')
         for entry in data:
@@ -99,6 +100,7 @@ def main():
             if existing and existing != build:
                 raise RuntimeError('different builds in tag')
             brew_builds[build.name] = build
+            tags[build.name] = tag
 
     # Fetch corresponding builds from EPEL
     ordered_names = sorted(brew_builds)
@@ -117,7 +119,7 @@ def main():
     epel_builds = dict(zip(ordered_names, builds_list))
 
     table = PrettyTable()
-    table.field_names = ['Pkg', 'Brew', 'EPEL']
+    table.field_names = ['Pkg', 'Brew', 'EPEL', 'Brew tag']
     table.align = 'l'
 
     for name in sorted(brew_builds):
@@ -129,7 +131,8 @@ def main():
         epel_verrel = epel_build.verrel
         if epel_build <= brew_build:
             continue
-        table.add_row([name, brew_verrel, epel_verrel])
+        tag = tags[name]
+        table.add_row([name, brew_verrel, epel_verrel, tag])
     print(table)
 
 
